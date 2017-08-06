@@ -13,7 +13,7 @@ class SFMLInput : public Input
 {
     sf::Window & m_window;
     
-    static Button getButton(sf::Keyboard::Key key) noexcept;
+    static constexpr Button getButton(sf::Keyboard::Key key) noexcept;
 
 public:
     SFMLInput(sf::Window & window);

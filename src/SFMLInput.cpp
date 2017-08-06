@@ -10,7 +10,7 @@ SFMLInput::SFMLInput(sf::Window & window)
 {
 }
 
-Button SFMLInput::getButton(sf::Keyboard::Key key) noexcept
+constexpr Button SFMLInput::getButton(sf::Keyboard::Key key) noexcept
 {
     switch(key)
     {
@@ -19,6 +19,7 @@ Button SFMLInput::getButton(sf::Keyboard::Key key) noexcept
         case sf::Keyboard::Right: return Button::Right;
         case sf::Keyboard::Up: return Button::Up;
         case sf::Keyboard::Down: return Button::Down;
+        case sf::Keyboard::Escape: return Button::Off;
         default: return Button::None;
     }
 }

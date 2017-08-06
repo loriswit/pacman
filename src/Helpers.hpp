@@ -25,10 +25,8 @@ template<Size SIZE>
 auto readFile(const std::string & filename)
 {
     Data<SIZE> data;
-    
-    std::ifstream file(filename, std::ios::binary);
+    std::ifstream file("res/" + filename, std::ios::binary);
     file.read(reinterpret_cast<char *>(data.array.data()), SIZE);
-    
     return data;
 }
 

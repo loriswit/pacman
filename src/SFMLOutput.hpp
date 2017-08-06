@@ -28,30 +28,33 @@ public:
     SFMLOutput(sf::RenderWindow & window)
             : m_window(window)
     {
-        m_tilemap.setPrimitiveType(sf::Quads);
-        m_tilemap.resize(WIDTH * HEIGHT * 4);
+        const float FACTOR = sf::VideoMode::getDesktopMode().height / HEIGHT * 0.9f;
+        const auto WINDOWWIDTH = static_cast<Size>(WIDTH * FACTOR);
+        const auto WINDOWHEIGHT = static_cast<Size>(HEIGHT * FACTOR);
         
-        constexpr Size ZOOM = 5;
-        m_window.create(sf::VideoMode(WIDTH * TILESIZE * ZOOM, HEIGHT * TILESIZE * ZOOM), "Pac-Man");
+        m_window.create(sf::VideoMode(WINDOWWIDTH, WINDOWHEIGHT), "Pac-Man", sf::Style::None);
         m_window.setFramerateLimit(60);
         
         sf::View view(sf::FloatRect(0, 0, WIDTH * TILESIZE, HEIGHT * TILESIZE));
         m_window.setView(view);
         
-        auto colors = generateColors<16>("../res/colors.bin");
-        auto palettes = generatePalettes<32>("../res/palettes.bin", colors);
+        auto colors = generateColors<16>("colors.bin");
+        auto palettes = generatePalettes<32>("palettes.bin", colors);
         
         sf::Image image;
         
-        auto tilePixels = generateTexturePixels<256, TILESIZE>("../res/tiles.bin", palettes);
+        auto tilePixels = generateTexturePixels<256, TILESIZE>("tiles.bin", palettes);
         image.create(tilePixels->width() / 4, tilePixels->height(), tilePixels->array.data());
         m_tileTexture.loadFromImage(image);
-        m_tileTexture.copyToImage().saveToFile("../design/tiles.png");
+        m_tileTexture.copyToImage().saveToFile("design/tiles.png");
         
-        auto spritePixels = generateTexturePixels<64, TILESIZE * 2>("../res/sprites.bin", palettes);
+        auto spritePixels = generateTexturePixels<64, TILESIZE * 2>("sprites.bin", palettes);
         image.create(spritePixels->width() / 4, spritePixels->height(), spritePixels->array.data());
         m_spriteTexture.loadFromImage(image);
-        m_spriteTexture.copyToImage().saveToFile("../design/sprites.png");
+        m_spriteTexture.copyToImage().saveToFile("design/sprites.png");
+        
+        m_tilemap.setPrimitiveType(sf::Quads);
+        m_tilemap.resize(WIDTH * HEIGHT * 4);
     }
     
     void updateScene(const Scene<WIDTH, HEIGHT> & scene) noexcept override
