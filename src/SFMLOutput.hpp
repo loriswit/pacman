@@ -7,12 +7,19 @@
 
 
 #include "Output.hpp"
-#include "Helpers.hpp"
+#include "Graphics.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 
+/**
+ * Class implementing a render target using SFML.
+ *
+ * @tparam WIDTH The number of tile per line
+ * @tparam HEIGHT The number of tile per row
+ * @tparam TILESIZE The number of pixels of a tile side
+ */
 template<Size WIDTH, Size HEIGHT, Size TILESIZE>
 class SFMLOutput : public Output<WIDTH, HEIGHT>
 {
@@ -25,6 +32,11 @@ class SFMLOutput : public Output<WIDTH, HEIGHT>
     sf::Clock timer;
 
 public:
+    /**
+     * Constructs an instance that displays graphics in a SFML window.
+     *
+     * @param window The reference to the window
+     */
     SFMLOutput(sf::RenderWindow & window)
             : m_window(window)
     {

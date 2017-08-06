@@ -6,9 +6,13 @@
 #define PACMAN_INPUT_HPP
 
 
-#include <vector>
+#include <unordered_set>
+
 #include "NonCopyable.hpp"
 
+/**
+ * Represents an arcade button.
+ */
 enum struct Button
 {
     None,
@@ -20,19 +24,40 @@ enum struct Button
     Off
 };
 
+/**
+ * Abstract class defining an interface for user inputs.
+ */
 class Input : private NonCopyable
 {
-    std::vector<Button> m_buttons;
+    std::unordered_set<Button> m_buttons;
 
 protected:
+    /**
+     * Marks a button as pressed down.
+     *
+     * @param button The pressed button
+     */
     void addButton(Button button);
     
-    void resetButtons() noexcept;
+    /**
+     * Updates the buttons state. Implementations of this function
+     * should define all pressed buttons by calling @a addButton.
+     */
+    virtual void updateButtons() = 0;
 
 public:
+    /**
+     * Returns true if a specific button is pressed down.
+     *
+     * @param button The tested button
+     * @return @a true if the button is pressed down, @a false if not
+     */
     bool buttonPressed(Button button) const;
     
-    virtual void update() = 0;
+    /**
+     * Resets and updates buttons state.
+     */
+    void update();
 };
 
 

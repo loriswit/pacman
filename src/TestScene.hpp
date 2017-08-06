@@ -8,6 +8,12 @@
 
 #include "Scene.hpp"
 
+/**
+ * Class representing the test screen displayed during game startup.
+ *
+ * @tparam WIDTH
+ * @tparam HEIGHT
+ */
 template<Size WIDTH, Size HEIGHT>
 class TestScene : public Scene<WIDTH, HEIGHT>
 {
@@ -123,7 +129,7 @@ public:
         
         if(time >= 0.045)
         {
-            ++m_index;
+            next();
             time = 0;
         }
         if(m_index > 60)

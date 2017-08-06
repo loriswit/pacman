@@ -2,14 +2,18 @@
 // Created by loris on 8/3/2017.
 //
 
-#ifndef PACMAN_GRAPHICOUTPUT_HPP
-#define PACMAN_GRAPHICOUTPUT_HPP
+#ifndef PACMAN_GRAPHICS_HPP
+#define PACMAN_GRAPHICS_HPP
 
 
 #include "Matrix.hpp"
 #include "Data.hpp"
 
 #include <fstream>
+
+/**
+ * Various functions that generates graphics data from binary files.
+ */
 
 using Color = std::array<Byte, 3>;
 using Palette = std::array<Color, 4>;
@@ -90,7 +94,7 @@ auto generatePalettes(const std::string & filename, const std::array<Color, COLO
  * The generated texture is stored on the heap to avoid stack overflow.
  *
  * @tparam TILECOUNT The number of tile to read
- * @tparam TILESIZE The size of a tile's side
+ * @tparam TILESIZE The number of pixels of a tile side
  * @tparam PALETTECOUNT The number of available palette
  * @param filename The path to the file
  * @param palettes An array containing all available palettes
@@ -138,4 +142,4 @@ auto generateTexturePixels(const std::string & filename, const std::array<Palett
 }
 
 
-#endif //PACMAN_GRAPHICOUTPUT_HPP
+#endif //PACMAN_GRAPHICS_HPP

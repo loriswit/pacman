@@ -3,6 +3,7 @@
 //
 
 #include <SFML/Window/Window.hpp>
+
 #include "SFMLInput.hpp"
 
 SFMLInput::SFMLInput(sf::Window & window)
@@ -10,7 +11,7 @@ SFMLInput::SFMLInput(sf::Window & window)
 {
 }
 
-constexpr Button SFMLInput::getButton(sf::Keyboard::Key key) noexcept
+Button SFMLInput::getButton(sf::Keyboard::Key key) noexcept
 {
     switch(key)
     {
@@ -24,10 +25,8 @@ constexpr Button SFMLInput::getButton(sf::Keyboard::Key key) noexcept
     }
 }
 
-void SFMLInput::update()
+void SFMLInput::updateButtons()
 {
-    resetButtons();
-    
     sf::Event event;
     while(m_window.pollEvent(event))
     {

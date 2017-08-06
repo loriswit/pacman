@@ -9,6 +9,9 @@
 #include "SFMLInput.hpp"
 #include "Game.hpp"
 
+/**
+ * Main entry point.
+ */
 int main()
 {
     std::cout.sync_with_stdio(false);
