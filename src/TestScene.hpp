@@ -17,132 +17,148 @@
 template<Size WIDTH, Size HEIGHT>
 class TestScene : public Scene<WIDTH, HEIGHT>
 {
-    void testTiles()
-    {
-        auto index = m_index % 15;
-        
-        constexpr Byte palette = 0xf;
-        
-        for(Size x = 0; x < WIDTH; ++x)
-        {
-            Byte valueA = 0x60;
-            valueA += index * 0x30;
-            valueA += x * 0xd0;
-            valueA += (x >= WIDTH / 2 ? index * 0x40 : 0);
-            
-            auto valueB = valueA;
-            valueB += (index % 2 ? 0x80 : 0);
-            
-            Tile tileA(valueA, palette);
-            Tile tileB(valueB, palette);
-            
-            this->setTile(x, 0, tileB);
-            this->setTile(x, 1, tileA);
-            this->setTile(x, HEIGHT - 2, tileB);
-            this->setTile(x, HEIGHT - 1, tileA);
-        }
-        for(Size y = 2; y < HEIGHT - 2; ++y)
-        {
-            Byte valueA = 0x90;
-            valueA += index * 0xf0;
-            valueA += y * 0x30;
-            valueA += (y >= HEIGHT / 2 ? index * 0xc0 : 0);
-            
-            auto valueB = valueA;
-            valueB += (index % 2 ? 0x80 : 0);
-            
-            Tile tileA(valueA, palette);
-            Tile tileB(valueB, palette);
-            
-            for(Size x = 0; x < WIDTH; ++x)
-                this->setTile(x, y, x % 2 ? tileA : tileB);
-        }
-    }
+    Size m_frame = 0;
+    float time = 0;
     
-    void testDigits()
+    /**
+     * Generates a tilemap chunk according to various parameters.
+     *
+     * @tparam X_POS The top left X coordinate
+     * @tparam Y_POS The top left Y coordinate
+     * @tparam X_SIZE The chunk width
+     * @tparam Y_SIZE The chunk height
+     * @tparam INITIAL_VALUE The initial value
+     * @tparam FINAL_MULTIPLIER The final value multiplier (@a value *= @a multiplier)
+     * @tparam FRAME_MULTIPLIER The frame multiplier (@a value + @a frame * @a multiplier)
+     * @tparam X_MULTIPLIER The width multiplier (@a value + @a x * @a multiplier)
+     * @tparam Y_MULTIPLIER The height multiplier (@a value + @a y * @a multiplier)
+     * @tparam X_FRAME_MULTIPLIER The width frame multiplier (@a value + @a x * @a frame * @a multiplier)
+     * @tparam Y_FRAME_MULTIPLIER The height frame multiplier (@a value + @a y * @a frame * @a multiplier)
+     * @tparam PALETTE @a true to apply the value to the color palette, @a false to apply to the tile number
+     */
+    template<Size X_POS, Size Y_POS,
+            Size X_SIZE, Size Y_SIZE,
+            Byte INITIAL_VALUE,
+            Byte FINAL_MULTIPLIER, Byte FRAME_MULTIPLIER,
+            Byte X_MULTIPLIER, Byte Y_MULTIPLIER,
+            Byte X_FRAME_MULTIPLIER, Byte Y_FRAME_MULTIPLIER,
+            bool PALETTE = false>
+    void genereateChunk() noexcept
     {
-        constexpr Byte palette = 0xf;
+        auto frame = m_frame % 15;
         
-        auto index = m_index % 15;
+        Byte initialValue = INITIAL_VALUE;
+        initialValue += frame * FRAME_MULTIPLIER;
         
-        for(Size x = 0; x < WIDTH; ++x)
+        for(Size x = X_POS; x < X_POS + X_SIZE; ++x)
         {
-            Byte valueA = 0x7;
-            valueA += index * 0xb;
-            valueA += x * 0xd;
+            auto value = initialValue;
             
-            auto valueB = valueA;
-            valueB += 0x6 + index * 0x8;
+            value += x * X_MULTIPLIER;
+            value += x * frame * X_FRAME_MULTIPLIER;
             
-            valueA += (x >= WIDTH / 2 ? 0x3 + index * 0x4 : 0);
-            valueB += (x >= WIDTH / 2 ? 0xb + index * 0x4 : 0);
-            
-            auto valueC = valueA;
-            valueC += 0xc;
-            
-            auto valueD = valueB;
-            valueD += 0xc;
-            
-            valueA %= 0x10;
-            valueB %= 0x10;
-            valueC %= 0x10;
-            valueD %= 0x10;
-            
-            this->setTile(x, 0, {valueA, palette});
-            this->setTile(x, 1, {valueB, palette});
-            this->setTile(x, HEIGHT - 2, {valueC, palette});
-            this->setTile(x, HEIGHT - 1, {valueD, palette});
-        }
-        for(Size y = 2; y < HEIGHT - 2; ++y)
-        {
-            Byte valueA = 0xf;
-            valueA += index * 0x7;
-            valueA += y * 0x3;
-            valueA += (y >= HEIGHT / 2 ? 0x5 + index * 0xc : 0);
-            
-            for(Size x = 0; x < WIDTH; ++x)
+            for(Size y = Y_POS; y < Y_POS + Y_SIZE; ++y)
             {
-                valueA %= 0x10;
-                this->setTile(x, y, {valueA, palette});
-                valueA += (y >= HEIGHT / 2 ? 0xa : 0x2) + index * 0x8;
+                auto finalValue = value;
+                
+                finalValue += y * Y_MULTIPLIER;
+                finalValue += y * frame * Y_FRAME_MULTIPLIER;
+                
+                finalValue %= 0x10;
+                finalValue *= FINAL_MULTIPLIER;
+                
+                if(PALETTE)
+                    this->tiles(x, y).palette = static_cast<Byte>(finalValue % 0x20);
+                else
+                    this->tiles(x, y).number = finalValue;
             }
         }
     }
     
-    void testBlank()
+    /**
+     * Generates a grid tilemap.
+     */
+    void grid() noexcept
     {
-        this->fill({0x40, 0xf});
+        for(Size i = 0; i < WIDTH * HEIGHT; ++i)
+        {
+            Byte value = 0x3c;
+            value += ((i % WIDTH) % 2 ? 0 : 2);
+            value += ((i / WIDTH) % 2 ? 1 : 0);
+            
+            this->tiles(i % WIDTH, i / WIDTH).number = value;
+        }
     }
-    
-    Size m_index = 0;
-    float time = 0;
 
 public:
-    void next() noexcept
+    /**
+     * Construct the test screen.
+     */
+    TestScene() noexcept
     {
-        ++m_index;
+        this->fill({0x40, 0xf});
     }
     
     void update(float deltaTime) override
     {
         time += deltaTime;
         
-        if(time >= 0.045)
+        m_frame = static_cast<Size>(time / 0.045);
+//        if(time >= 0.045)
+//        {
+//            ++m_frame;
+//            time = 0;
+//        }
+        
+        if(m_frame < 30)
+            return;
+        
+        else if(m_frame < 45)
         {
-            next();
-            time = 0;
+            genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x7, 0x1, 0xb, 0xd, 0x6, 0x0, 0x8>();
+            genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0xa, 0x1, 0xf, 0xd, 0xe, 0x0, 0x8>();
+    
+            genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0xf, 0x1, 0x7, 0x2, 0x3, 0x8, 0x0>();
+            genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x4, 0x1, 0x3, 0xa, 0x3, 0x8, 0x0>();
         }
-        if(m_index > 60)
-            m_index = 0;
         
-        if(m_index > 45)
-            testTiles();
+        else if(m_frame < 60)
+        {
+            genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xb, 0xd, 0x0, 0x0, 0x8>();
+            genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xf, 0xd, 0x0, 0x0, 0x8>();
+    
+            genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x7, 0x0, 0x3, 0x8, 0x0>();
+            genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x3, 0x0, 0x3, 0x8, 0x0>();
+        }
         
-        else if(m_index > 30)
-            testDigits();
+        else if(m_frame < 75)
+        {
+            genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x7, 0x1, 0xb, 0xd, 0x6, 0x0, 0x8, true>();
+            genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0xa, 0x1, 0xf, 0xd, 0xe, 0x0, 0x8, true>();
+    
+            genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0xf, 0x1, 0x7, 0x2, 0x3, 0x8, 0x0, true>();
+            genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x4, 0x1, 0x3, 0xa, 0x3, 0x8, 0x0, true>();
+        }
+        
+        else if(m_frame < 90)
+        {
+            genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xb, 0xd, 0x0, 0x0, 0x8, true>();
+            genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xf, 0xd, 0x0, 0x0, 0x8, true>();
+    
+            genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x7, 0x0, 0x3, 0x8, 0x0, true>();
+            genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x3, 0x0, 0x3, 0x8, 0x0, true>();
+        }
+        
+        else if(m_frame == 90)
+            this->fill({0x40, 0xf});
         
         else
-            testBlank();
+            grid();
+    }
+    
+    bool expired() override
+    {
+        return m_frame > 108;
     }
 };
 

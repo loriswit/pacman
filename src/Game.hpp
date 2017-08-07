@@ -6,8 +6,11 @@
 #define PACMAN_GAME_HPP
 
 
+#include <memory>
+
 #include "Output.hpp"
 #include "Input.hpp"
+#include "Scene.hpp"
 
 /**
  * Class representing the Pac-Man game.
@@ -28,6 +31,14 @@ public:
 private:
     Input & m_input;
     Output<WIDTH, HEIGHT> & m_output;
+    
+    std::unique_ptr<Scene<WIDTH, HEIGHT>> m_scene;
+    
+    template<typename SCENE_TYPE>
+    void loadScene()
+    {
+        m_scene = std::make_unique<SCENE_TYPE>();
+    }
 
 public:
     /**

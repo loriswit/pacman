@@ -26,15 +26,15 @@ class Scene : private NonCopyable
 
 protected:
     /**
-     * Updates a tile in the tilemap.
+     * Returns a reference to a tile in the tilemap.
      *
      * @param x The horizontal index of the tile
      * @param y The vertical index of the tile
-     * @param tile The new tile
+     * @return The reference to the tile
      */
-    void setTile(Size x, Size y, const Tile & tile) noexcept
+    Tile & tiles(Size x, Size y) noexcept
     {
-        m_tiles(x, y) = tile;
+        return m_tiles(x, y);
     }
     
     /**
@@ -66,6 +66,13 @@ public:
      * @param deltaTime The time elapsed since last frame
      */
     virtual void update(float deltaTime) = 0;
+    
+    /**
+     * Tells if the scene has anything left to display.
+     *
+     * @return @a true if the scene has nothing left to display, @a false if not
+     */
+    virtual bool expired() = 0;
 };
 
 

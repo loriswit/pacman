@@ -9,14 +9,13 @@
 Game::Game(Input & input, Output<WIDTH, HEIGHT> & output)
         : m_input(input), m_output(output)
 {
+    loadScene<TestScene<WIDTH, HEIGHT>>();
 }
 
 void Game::run()
 {
     float deltaTime = 0;
     bool isRunning = true;
-    
-    TestScene<WIDTH, HEIGHT> scene;
     
     while(isRunning)
     {
@@ -25,13 +24,11 @@ void Game::run()
         if(m_input.buttonPressed(Button::Off))
             isRunning = false;
         
-        if(m_input.buttonPressed(Button::Start))
-        {
-            scene.next();
-        }
+        if(m_scene->expired())
+            loadScene<TestScene<WIDTH, HEIGHT>>();
         
-        scene.update(deltaTime);
-        m_output.updateScene(scene);
+        m_scene->update(deltaTime);
+        m_output.updateScene(*m_scene);
         
         deltaTime = m_output.display();
     }
