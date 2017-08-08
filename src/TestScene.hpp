@@ -68,9 +68,9 @@ class TestScene : public Scene<WIDTH, HEIGHT>
                 finalValue *= FINAL_MULTIPLIER;
                 
                 if(PALETTE)
-                    this->tiles(x, y).palette = static_cast<Byte>(finalValue % 0x20);
+                    this->tile(x, y).palette = static_cast<Byte>(finalValue % 0x20);
                 else
-                    this->tiles(x, y).number = finalValue;
+                    this->tile(x, y).number = finalValue;
             }
         }
     }
@@ -86,7 +86,7 @@ class TestScene : public Scene<WIDTH, HEIGHT>
             value += ((i % WIDTH) % 2 ? 0 : 2);
             value += ((i / WIDTH) % 2 ? 1 : 0);
             
-            this->tiles(i % WIDTH, i / WIDTH).number = value;
+            this->tile(i % WIDTH, i / WIDTH).number = value;
         }
     }
 
@@ -104,11 +104,6 @@ public:
         time += deltaTime;
         
         m_frame = static_cast<Size>(time / 0.045);
-//        if(time >= 0.045)
-//        {
-//            ++m_frame;
-//            time = 0;
-//        }
         
         if(m_frame < 30)
             return;
@@ -117,7 +112,7 @@ public:
         {
             genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x7, 0x1, 0xb, 0xd, 0x6, 0x0, 0x8>();
             genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0xa, 0x1, 0xf, 0xd, 0xe, 0x0, 0x8>();
-    
+            
             genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0xf, 0x1, 0x7, 0x2, 0x3, 0x8, 0x0>();
             genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x4, 0x1, 0x3, 0xa, 0x3, 0x8, 0x0>();
         }
@@ -126,7 +121,7 @@ public:
         {
             genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xb, 0xd, 0x0, 0x0, 0x8>();
             genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xf, 0xd, 0x0, 0x0, 0x8>();
-    
+            
             genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x7, 0x0, 0x3, 0x8, 0x0>();
             genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x3, 0x0, 0x3, 0x8, 0x0>();
         }
@@ -135,7 +130,7 @@ public:
         {
             genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x7, 0x1, 0xb, 0xd, 0x6, 0x0, 0x8, true>();
             genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0xa, 0x1, 0xf, 0xd, 0xe, 0x0, 0x8, true>();
-    
+            
             genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0xf, 0x1, 0x7, 0x2, 0x3, 0x8, 0x0, true>();
             genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x4, 0x1, 0x3, 0xa, 0x3, 0x8, 0x0, true>();
         }
@@ -144,7 +139,7 @@ public:
         {
             genereateChunk<0, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xb, 0xd, 0x0, 0x0, 0x8, true>();
             genereateChunk<WIDTH / 2, 0, WIDTH / 2, HEIGHT, 0x6, 0x10, 0xf, 0xd, 0x0, 0x0, 0x8, true>();
-    
+            
             genereateChunk<0, 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x7, 0x0, 0x3, 0x8, 0x0, true>();
             genereateChunk<0, HEIGHT / 2, WIDTH, HEIGHT / 2 - 2, 0x9, 0x10, 0x3, 0x0, 0x3, 0x8, 0x0, true>();
         }

@@ -9,6 +9,7 @@
 #include "NonCopyable.hpp"
 #include "Matrix.hpp"
 #include "Tile.hpp"
+#include "Text.hpp"
 
 template<Size WIDTH, Size HEIGHT>
 using TileMap = Matrix<Tile, WIDTH, HEIGHT>;
@@ -32,7 +33,7 @@ protected:
      * @param y The vertical index of the tile
      * @return The reference to the tile
      */
-    Tile & tiles(Size x, Size y) noexcept
+    Tile & tile(Size x, Size y) noexcept
     {
         return m_tiles(x, y);
     }
@@ -45,6 +46,19 @@ protected:
     void fill(const Tile & tile) noexcept
     {
         m_tiles.array.fill(tile);
+    }
+    
+    /**
+     * Displays a text at a specific position on the tilemap.
+     *
+     * @param x The horizontal position of the first character
+     * @param y The vertical position of the first character
+     * @param text The text to display
+     */
+    void print(Size x, Size y, const Text & text)
+    {
+        for(Size i = 0; i < text.tiles().size(); ++i)
+            m_tiles(x + i, y) = text.tiles()[i];
     }
 
 public:
