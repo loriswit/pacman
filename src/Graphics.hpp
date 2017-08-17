@@ -37,16 +37,16 @@ auto readFile(const std::string & filename)
 /**
  * Generates a list of colors from a binary file.
  *
- * @tparam COLORCOUNT The number of color to read
+ * @tparam COLOR_COUNT The number of color to read
  * @param filename The path to the file
  * @return An array containing all colors
  */
-template<Size COLORCOUNT>
+template<Size COLOR_COUNT>
 auto generateColors(const std::string & filename) noexcept
 {
-    auto data = readFile<COLORCOUNT>(filename);
+    auto data = readFile<COLOR_COUNT>(filename);
     
-    std::array<Color, COLORCOUNT> colors;
+    std::array<Color, COLOR_COUNT> colors;
     for(auto & color : colors)
     {
         auto value = data.template next<Byte>();
@@ -60,18 +60,18 @@ auto generateColors(const std::string & filename) noexcept
 /**
  * Generates a list of palettes from a binary file and a color list.
  *
- * @tparam PALETTECOUNT The number of palette to read
- * @tparam COLORCOUNT The number of available color
+ * @tparam PALETTE_COUNT The number of palette to read
+ * @tparam COLOR_COUNT The number of available color
  * @param filename The path to the file
  * @param colors An array containing all available colors
  * @return An array containing all palettes
  */
-template<Size PALETTECOUNT, Size COLORCOUNT>
-auto generatePalettes(const std::string & filename, const std::array<Color, COLORCOUNT> & colors) noexcept
+template<Size PALETTE_COUNT, Size COLOR_COUNT>
+auto generatePalettes(const std::string & filename, const std::array<Color, COLOR_COUNT> & colors) noexcept
 {
-    auto data = readFile<PALETTECOUNT * sizeof(Short)>(filename);
+    auto data = readFile<PALETTE_COUNT * sizeof(Short)>(filename);
     
-    std::array<Palette, PALETTECOUNT> palettes;
+    std::array<Palette, PALETTE_COUNT> palettes;
     for(auto & palette : palettes)
     {
         auto value = data.template get<Short>();
@@ -93,24 +93,24 @@ auto generatePalettes(const std::string & filename, const std::array<Color, COLO
  * The generated texture is made of one row per tile and one line per palette.
  * The generated texture is stored on the heap to avoid stack overflow.
  *
- * @tparam TILECOUNT The number of tile to read
- * @tparam TILESIZE The number of pixels of a tile side
- * @tparam PALETTECOUNT The number of available palette
+ * @tparam TILE_COUNT The number of tile to read
+ * @tparam TILE_SIZE The number of pixels of a tile side
+ * @tparam PALETTE_COUNT The number of available palette
  * @param filename The path to the file
  * @param palettes An array containing all available palettes
  * @return A pointer to a @a Matrix object containing 32 bits RGBA pixels
  */
-template<Size TILECOUNT, Size TILESIZE, Size PALETTECOUNT>
-auto generateTexturePixels(const std::string & filename, const std::array<Palette, PALETTECOUNT> & palettes) noexcept
+template<Size TILE_COUNT, Size TILE_SIZE, Size PALETTE_COUNT>
+auto generateTexturePixels(const std::string & filename, const std::array<Palette, PALETTE_COUNT> & palettes) noexcept
 {
     constexpr Size PIXELSPERBYTE = 4;
-    constexpr Size BYTEPERTILE = TILESIZE * TILESIZE / PIXELSPERBYTE;
-    constexpr Size FILESIZE = TILECOUNT * BYTEPERTILE;
+    constexpr Size BYTEPERTILE = TILE_SIZE * TILE_SIZE / PIXELSPERBYTE;
+    constexpr Size FILESIZE = TILE_COUNT * BYTEPERTILE;
     
     auto data = readFile<FILESIZE>(filename);
     
     // store texture on the heap
-    auto pixelsPtr = std::make_unique<Matrix<Byte, TILECOUNT * TILESIZE * 4, PALETTECOUNT * TILESIZE>>();
+    auto pixelsPtr = std::make_unique<Matrix<Byte, TILE_COUNT * TILE_SIZE * 4, PALETTE_COUNT * TILE_SIZE>>();
     auto & pixels = *pixelsPtr;
     
     for(Size byteIndex = 0; byteIndex < FILESIZE; ++byteIndex)
@@ -122,11 +122,11 @@ auto generateTexturePixels(const std::string & filename, const std::array<Palett
             auto colorIndex = static_cast<Size>(value >> (6 - pixelIndex * 2) & 0b11);
             
             auto pixelNumber = byteIndex % BYTEPERTILE * PIXELSPERBYTE + pixelIndex;
-            auto x = pixelNumber % TILESIZE + byteIndex / BYTEPERTILE * TILESIZE;
+            auto x = pixelNumber % TILE_SIZE + byteIndex / BYTEPERTILE * TILE_SIZE;
             
-            for(Size paletteIndex = 0; paletteIndex < PALETTECOUNT; ++paletteIndex)
+            for(Size paletteIndex = 0; paletteIndex < PALETTE_COUNT; ++paletteIndex)
             {
-                auto y = pixelNumber / TILESIZE + paletteIndex * TILESIZE;
+                auto y = pixelNumber / TILE_SIZE + paletteIndex * TILE_SIZE;
                 
                 auto & color = palettes[paletteIndex][colorIndex];
                 for(Size channelIndex = 0; channelIndex < color.size(); ++channelIndex)

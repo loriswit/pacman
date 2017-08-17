@@ -9,38 +9,45 @@
 #include <vector>
 
 #include "NonCopyable.hpp"
-#include "Scene.hpp"
+#include "Tilemap.hpp"
 
 /**
  * Abstract class defining an interface for a render target.
  *
+ * @tparam TAG The concrete output class tag
  * @tparam WIDTH The number of tile per line
  * @tparam HEIGHT The number of tile per row
+ * @tparam TILE_SIZE The number of pixels of a tile side
  */
-template<Size WIDTH, Size HEIGHT>
+template<typename TAG, Size WIDTH, Size HEIGHT, Size TILE_SIZE>
 class Output : private NonCopyable
 {
 public:
     /**
-     * Updates the background tilemap.
+     * Displays a tilemap at a specific position.
      *
-     * @param scene The new scene to be displayed
+     * @tparam X The horizontal drawing position
+     * @tparam Y The vertical drawing position
+     * @tparam TM_WIDTH The tilemap width
+     * @tparam TM_HEIGHT The tilemap height
+     * @param tilemap The tilemap to display
      */
-    virtual void updateScene(const Scene<WIDTH, HEIGHT> & scene) = 0;
+    template<Size X, Size Y, Size TM_WIDTH, Size TM_HEIGHT>
+    void drawTilemap(const Tilemap<TM_WIDTH, TM_HEIGHT> & tilemap) = delete;
     
     /**
-     * Updates the sprites.
+     * Draws the sprites.
      *
      * @param sprites The list of all sprites to be displayed
      */
-    virtual void updateSprites(const std::vector<Tile> & sprites) = 0;
+    void drawSprites(const std::vector<Tile> & sprites) = delete;
     
     /**
      * Displays the tilemap and the sprites.
      *
      * @return The time elapsed since last call to this function
      */
-    virtual float display() = 0;
+    float display() = delete;
 };
 
 

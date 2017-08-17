@@ -13,15 +13,17 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 
+struct SFMLOutput {};
+
 /**
  * Class implementing a render target using SFML.
  *
  * @tparam WIDTH The number of tile per line
  * @tparam HEIGHT The number of tile per row
- * @tparam TILESIZE The number of pixels of a tile side
+ * @tparam TILE_SIZE The number of pixels of a tile side
  */
-template<Size WIDTH, Size HEIGHT, Size TILESIZE>
-class SFMLOutput : public Output<WIDTH, HEIGHT>
+template<Size WIDTH, Size HEIGHT, Size TILE_SIZE>
+class Output<SFMLOutput, WIDTH, HEIGHT, TILE_SIZE> : private NonCopyable
 {
     sf::RenderWindow & m_window;
     
@@ -37,7 +39,7 @@ public:
      *
      * @param window The reference to the window
      */
-    SFMLOutput(sf::RenderWindow & window)
+    Output(sf::RenderWindow & window)
             : m_window(window)
     {
         const float FACTOR = sf::VideoMode::getDesktopMode().height / HEIGHT * 0.9f;
@@ -47,7 +49,7 @@ public:
         m_window.create(sf::VideoMode(WINDOWWIDTH, WINDOWHEIGHT), "Pac-Man", sf::Style::None);
         m_window.setFramerateLimit(60);
         
-        sf::View view(sf::FloatRect(0, 0, WIDTH * TILESIZE, HEIGHT * TILESIZE));
+        sf::View view(sf::FloatRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE));
         m_window.setView(view);
         
         auto colors = generateColors<16>("colors.bin");
@@ -55,12 +57,12 @@ public:
         
         sf::Image image;
         
-        auto tilePixels = generateTexturePixels<256, TILESIZE>("tiles.bin", palettes);
+        auto tilePixels = generateTexturePixels<256, TILE_SIZE>("tiles.bin", palettes);
         image.create(tilePixels->width() / 4, tilePixels->height(), tilePixels->array.data());
         m_tileTexture.loadFromImage(image);
         m_tileTexture.copyToImage().saveToFile("design/tiles.png");
         
-        auto spritePixels = generateTexturePixels<64, TILESIZE * 2>("sprites.bin", palettes);
+        auto spritePixels = generateTexturePixels<64, TILE_SIZE * 2>("sprites.bin", palettes);
         image.create(spritePixels->width() / 4, spritePixels->height(), spritePixels->array.data());
         m_spriteTexture.loadFromImage(image);
         m_spriteTexture.copyToImage().saveToFile("design/sprites.png");
@@ -69,40 +71,39 @@ public:
         m_tilemap.resize(WIDTH * HEIGHT * 4);
     }
     
-    void updateScene(const Scene<WIDTH, HEIGHT> & scene) noexcept override
+    template<Size X, Size Y, Size TM_WIDTH, Size TM_HEIGHT>
+    void drawTilemap(const Tilemap<TM_WIDTH, TM_HEIGHT> & tilemap)
     {
-        for(Size x = 0; x < WIDTH; ++x)
-            for(Size y = 0; y < HEIGHT; ++y)
+        for(Size x = 0; x < TM_WIDTH; ++x)
+            for(Size y = 0; y < TM_HEIGHT; ++y)
             {
-                const auto & tile = scene(x, y);
+                const auto & tile = tilemap.tiles(x, y);
                 
-                Size index = (x + y * WIDTH) * 4;
+                Size index = (x + y * TM_WIDTH) * 4;
                 
-                m_tilemap[index].position = sf::Vector2f(x * TILESIZE, y * TILESIZE);
-                m_tilemap[index + 1].position = sf::Vector2f((x + 1) * TILESIZE, y * TILESIZE);
-                m_tilemap[index + 2].position = sf::Vector2f((x + 1) * TILESIZE, (y + 1) * TILESIZE);
-                m_tilemap[index + 3].position = sf::Vector2f(x * TILESIZE, (y + 1) * TILESIZE);
+                m_tilemap[index].position = sf::Vector2f(x * TILE_SIZE, y * TILE_SIZE);
+                m_tilemap[index + 1].position = sf::Vector2f((x + 1) * TILE_SIZE, y * TILE_SIZE);
+                m_tilemap[index + 2].position = sf::Vector2f((x + 1) * TILE_SIZE, (y + 1) * TILE_SIZE);
+                m_tilemap[index + 3].position = sf::Vector2f(x * TILE_SIZE, (y + 1) * TILE_SIZE);
                 
                 auto number = static_cast<Size>(tile.number);
                 auto palette = static_cast<Size>(tile.palette);
                 
-                m_tilemap[index].texCoords = sf::Vector2f(number * TILESIZE, palette * TILESIZE);
-                m_tilemap[index + 1].texCoords = sf::Vector2f((number + 1) * TILESIZE, palette * TILESIZE);
-                m_tilemap[index + 2].texCoords = sf::Vector2f((number + 1) * TILESIZE, (palette + 1) * TILESIZE);
-                m_tilemap[index + 3].texCoords = sf::Vector2f(number * TILESIZE, (palette + 1) * TILESIZE);
+                m_tilemap[index].texCoords = sf::Vector2f(number * TILE_SIZE, palette * TILE_SIZE);
+                m_tilemap[index + 1].texCoords = sf::Vector2f((number + 1) * TILE_SIZE, palette * TILE_SIZE);
+                m_tilemap[index + 2].texCoords = sf::Vector2f((number + 1) * TILE_SIZE, (palette + 1) * TILE_SIZE);
+                m_tilemap[index + 3].texCoords = sf::Vector2f(number * TILE_SIZE, (palette + 1) * TILE_SIZE);
             }
+    
+        sf::RenderStates renderStates;
+        renderStates.texture = &m_tileTexture;
+        renderStates.transform.translate(sf::Vector2f(X, Y) * static_cast<float>(TILE_SIZE));
+        m_window.draw(m_tilemap, renderStates);
     }
     
-    void updateSprites(const std::vector<Tile> & sprites) noexcept override
+    float display()
     {
-    }
-    
-    float display() override
-    {
-        m_window.clear();
-        m_window.draw(m_tilemap, sf::RenderStates(&m_tileTexture));
         m_window.display();
-        
         return timer.restart().asSeconds();
     }
 };

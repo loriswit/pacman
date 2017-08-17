@@ -18,8 +18,8 @@ int main()
     
     sf::RenderWindow window;
     
-    SFMLOutput<Game::WIDTH, Game::HEIGHT, 8> output(window);
-    SFMLInput input(window);
+    Input<SFMLInput> input(window);
+    Output<SFMLOutput, 28, 36, 8> output(window);
     
     Game game(input, output);
     game.run();
