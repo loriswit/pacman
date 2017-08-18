@@ -6,9 +6,6 @@
 #define PACMAN_TEXT_HPP
 
 
-#include <vector>
-#include <string>
-
 #include "Tile.hpp"
 
 using Size = std::size_t;

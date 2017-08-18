@@ -86,8 +86,6 @@ auto generatePalettes(const std::string & filename, const std::array<Color, COLO
     return palettes;
 }
 
-#include <memory>
-
 /**
  * Generates texture pixels from a binary file and a list of palettes.
  * The generated texture is made of one row per tile and one line per palette.
@@ -109,9 +107,7 @@ auto generateTexturePixels(const std::string & filename, const std::array<Palett
     
     auto data = readFile<FILESIZE>(filename);
     
-    // store texture on the heap
-    auto pixelsPtr = std::make_unique<Matrix<Byte, TILE_COUNT * TILE_SIZE * 4, PALETTE_COUNT * TILE_SIZE>>();
-    auto & pixels = *pixelsPtr;
+    Matrix<Byte, TILE_COUNT * TILE_SIZE * 4, PALETTE_COUNT * TILE_SIZE> pixels;
     
     for(Size byteIndex = 0; byteIndex < FILESIZE; ++byteIndex)
     {
@@ -138,7 +134,7 @@ auto generateTexturePixels(const std::string & filename, const std::array<Palett
         }
     }
     
-    return pixelsPtr;
+    return pixels;
 }
 
 

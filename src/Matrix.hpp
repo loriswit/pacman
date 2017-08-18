@@ -2,8 +2,8 @@
 // Created by loris on 8/1/2017.
 //
 
-#ifndef PACMAN_MATRIX_HPP_HPP
-#define PACMAN_MATRIX_HPP_HPP
+#ifndef PACMAN_MATRIX_HPP
+#define PACMAN_MATRIX_HPP
 
 
 #include <array>
@@ -22,9 +22,13 @@ template<typename TYPE, Size WIDTH, Size HEIGHT>
 struct Matrix
 {
     /**
-     * Array storing matrix content.
+     * Constructs the matrix.
      */
-    std::array<TYPE, WIDTH * HEIGHT> array;
+    Matrix()
+    {
+        if constexpr(USES_VECTOR)
+            array.resize(SIZE);
+    }
     
     /**
      * Returns a reference to a value in the matrix.
@@ -75,7 +79,33 @@ struct Matrix
     {
         return HEIGHT;
     }
+    
+    /**
+     * Returns the internal data of the matrix.
+     *
+     * @return The internal data
+     */
+    auto data() const noexcept
+    {
+        return array.data();
+    }
+    
+    /**
+     * Fills the matrix with a specific value.
+     *
+     * @param value The value to fill the matrix with
+     */
+    void fill(TYPE value) noexcept
+    {
+        std::fill(array.begin(), array.end(), value);
+    }
+
+private:
+    static constexpr Size SIZE = WIDTH * HEIGHT;
+    static constexpr bool USES_VECTOR = SIZE > 1'000'000;
+    
+    std::conditional_t<USES_VECTOR, std::vector<TYPE>, std::array<TYPE, SIZE>> array;
 };
 
 
-#endif //PACMAN_MATRIX_HPP_HPP
+#endif //PACMAN_MATRIX_HPP

@@ -58,12 +58,12 @@ public:
         sf::Image image;
         
         auto tilePixels = generateTexturePixels<256, TILE_SIZE>("tiles.bin", palettes);
-        image.create(tilePixels->width() / 4, tilePixels->height(), tilePixels->array.data());
+        image.create(tilePixels.width() / 4, tilePixels.height(), tilePixels.data());
         m_tileTexture.loadFromImage(image);
         m_tileTexture.copyToImage().saveToFile("design/tiles.png");
         
         auto spritePixels = generateTexturePixels<64, TILE_SIZE * 2>("sprites.bin", palettes);
-        image.create(spritePixels->width() / 4, spritePixels->height(), spritePixels->array.data());
+        image.create(spritePixels.width() / 4, spritePixels.height(), spritePixels.data());
         m_spriteTexture.loadFromImage(image);
         m_spriteTexture.copyToImage().saveToFile("design/sprites.png");
         

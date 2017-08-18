@@ -6,8 +6,6 @@
 #define PACMAN_GAME_HPP
 
 
-#include <memory>
-
 #include "Output.hpp"
 #include "Input.hpp"
 #include "Tilemap.hpp"
@@ -40,7 +38,7 @@ public:
     Game(Input<INPUT_TAG> & input, Output<OUTPUT_TAG, WIDTH, HEIGHT, TILE_SIZE> & output)
             : m_input(input), m_output(output)
     {
-        m_tilemap.tiles.array.fill({0, 0xf});
+        m_tilemap.tiles.fill({0, 0xf});
     }
     
     /**

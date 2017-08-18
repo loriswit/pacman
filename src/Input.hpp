@@ -6,8 +6,6 @@
 #define PACMAN_INPUT_HPP
 
 
-#include <unordered_set>
-
 #include "NonCopyable.hpp"
 
 /**
